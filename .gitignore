@@ -1,0 +1,26 @@
+# Environment files
+.env
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+
+# Build artifacts
+/build/
+/dist/
+/node_modules/
+/vendor/
+/scripts/
+
+# IDE/Editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Exclude resources folder
+src/main/resources/*
+
+build/*

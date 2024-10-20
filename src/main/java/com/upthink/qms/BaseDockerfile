@@ -1,0 +1,68 @@
+# Use Ubuntu 20.04 as the base image
+FROM ubuntu:20.04
+
+# Copy base image addons
+COPY ./baseimage_addons/ /baseimage_addons
+
+# Copy scripts
+COPY ./scripts /scripts
+
+# Update package lists and install required packages
+RUN apt-get update && \
+    apt-get install -y unzip openjdk-11-jdk
+
+RUN apt-get install -y awscli
+
+RUN apt-get install -y wget
+
+RUN apt-get install -y apache2
+
+RUN apt-get install -y git
+
+RUN apt-get install -y curl
+
+RUN apt-get install -y gnupg2
+
+RUN apt-get install -y apt-transport-https
+
+RUN apt-get install -y ca-certificates
+
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv //keyserverid
+
+RUN apt-get update -y
+
+
+
+# Create an empty XML catalog
+RUN mkdir -p /xmlcatalog && touch /xmlcatalog/catalog.xml
+
+# RUN add-apt-repository ppa:libreoffice/ppa
+# RUN apt-get update
+# RUN apt-get dist-upgrade
+
+# RUN apt-get install -y gdebi
+
+# Installing Locales
+RUN apt-get -y install locales
+
+# Set the locale
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+# Download and install LibreOffice
+RUN wget https://ftp.halifax.rwth-aachen.de/tdf/libreoffice/stable/7.6.2/deb/x86_64/LibreOffice_7.6.2_Linux_x86-64_deb.tar.gz
+RUN tar -xzvf LibreOffice_7.6.2_Linux_x86-64_deb.tar.gz
+RUN dpkg -i LibreOffice_7.6.2.1_Linux_x86-64_deb/DEBS/*.deb
+
+
+# Clean up the package cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Run script
+RUN ./scripts/baseimage.sh
+
+# ENTRYPOINT ["./scripts/baseimage.sh"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]

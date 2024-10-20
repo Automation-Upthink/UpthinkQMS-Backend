@@ -1,0 +1,165 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.3'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id "org.flywaydb.flyway" version "10.17.1"
+	id 'com.github.johnrengelman.shadow' version '8.0.0'
+	id 'io.sentry.jvm.gradle' version '4.11.0'
+	id 'application'
+	id 'jacoco'
+	id 'com.github.ben-manes.versions' version '0.47.0'
+}
+
+group = 'com.upthink'
+version = '1.0.0-SNAPSHOT'
+
+
+//shadowJar {
+//	archiveBaseName.set('QMS-SNAPSHOT')
+//	archiveClassifier.set('all')
+//	archiveVersion.set('1.0')
+//	mainClassName = 'com.upthink.qms.QmsApplication'
+//	zip64 true
+//	from sourceSets.main.output
+//}
+
+tasks.named('bootJar') {
+	archiveBaseName.set('QMS-SNAPSHOT')
+	archiveClassifier.set('')
+	archiveVersion.set('1.0')
+	mainClass.set('com.upthink.qms.QmsApplication')
+}
+
+
+sourceSets {
+	main {
+		resources {
+			srcDir 'src/main/resources'
+			include '**/*.properties', '**/*.yml', '**/*.json'
+		}
+	}
+}
+
+tasks.named('processResources') {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+
+//java {
+//	toolchain {
+//		languageVersion = JavaLanguageVersion.of(21)
+//	}
+//}
+
+repositories {
+	jcenter()
+	mavenCentral()
+	flatDir {
+		dirs 'libs'
+	}
+	maven {
+		url "https://muxinc.jfrog.io/artifactory/default-maven-release-local"
+	}
+}
+
+application {
+	mainClass = 'com.upthink.qms.QmsApplication'
+}
+
+// Disable the default jar task
+tasks.named('jar') {
+	enabled = true
+}
+
+def productDependenciesPath = "./libs"
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	devImplementation.extendsFrom implementation
+	prodImplementation.extendsFrom implementation
+}
+
+
+dependencies {
+	implementation fileTree(dir: "$productDependenciesPath", include: ["*.jar"])
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation group: 'org.jdbi', name: 'jdbi3-core', version: '3.45.1'
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
+	runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '10.15.0'
+	implementation 'io.micrometer:micrometer-registry-prometheus:latest.release'
+	implementation 'io.micrometer:micrometer-registry-graphite:latest.release'
+	implementation 'io.github.classgraph:classgraph:4.8.174'
+	implementation 'com.auth0:java-jwt:4.4.0'
+	implementation group: 'com.auth0', name: 'jwks-rsa', version: '0.22.1'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation group: 'software.amazon.awssdk', name: 'cognitoidentityprovider', version: '2.27.12'
+	implementation 'software.amazon.awssdk:cognitoidentityprovider:2.27.12'
+	implementation group: 'software.amazon.awssdk', name: 'ses', version: '2.27.17'
+	// https://mvnrepository.com/artifact/software.amazon.awssdk/s3
+	implementation group: 'software.amazon.awssdk', name: 's3', version: '2.27.21'
+	implementation 'software.amazon.awssdk:lambda:2.27.21' // AWS Lambda SDK v2
+	implementation 'software.amazon.awssdk:core:2.27.21'
+	implementation 'software.amazon.awssdk:eventbridge:2.20.0'
+	implementation 'com.google.code.gson:gson:2.11.0'
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.2'
+//	implementation 'org.json:json:20230618'
+	implementation 'org.jsonschema2pojo:jsonschema2pojo-core:1.1.1'
+	implementation group: 'org.json', name: 'json', version: '20230618'
+	// https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt
+	implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.41.1'
+
+//	// https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-core
+//	implementation group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.12.771'
+	// Thymeleaf
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: '3.3.2'
+	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
+	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.6'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-autoconfigure', version: '3.3.4'
+	implementation 'com.google.auth:google-auth-library-oauth2-http:1.24.1'
+	implementation 'com.google.apis:google-api-services-sheets:v4-rev20220927-2.0.0'
+
+	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
+	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
+
+	// Flyway migration
+	runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '10.15.0'
+	compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.0.0'
+
+
+	// Add Google API Client dependencies
+	implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.6.0'
+	implementation group: 'com.google.oauth-client', name: 'google-oauth-client', version: '1.34.1'
+	implementation 'com.google.http-client:google-http-client-jackson2:1.41.7'
+
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'com.google.errorprone:error_prone_annotations:2.27.0'
+
+}
+
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs << '-Xlint:deprecation'
+}
