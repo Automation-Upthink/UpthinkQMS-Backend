@@ -14,7 +14,31 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Set up AWS Credentials
+      # Step 2: Decode SSH Key
+      - name: Decode SSH Key
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          if [ -n "$EC2_SSH_KEY" ]; then
+            echo "$EC2_SSH_KEY" | base64 --decode > qms-backend-dev-Key.pem
+            chmod 600 qms-backend-dev-Key.pem
+            echo "SSH key decoded and permissions set."
+          else
+            echo "EC2_SSH_KEY is not set. Skipping this step."
+          fi
+        shell: bash
+
+      # Step 3: Verify SSH Key File
+      - name: Verify SSH Key File
+        run: |
+          if [ -f "qms-backend-dev-Key.pem" ]; then
+            echo "SSH key file exists."
+            ls -l qms-backend-dev-Key.pem
+          else
+            echo "SSH key file not found."
+          fi
+
+      # Step 4: Set up AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -22,42 +46,42 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Step 3: Login to Amazon ECR using GitHub Action
+      # Step 5: Login to Amazon ECR using GitHub Action
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
         with:
           region: ${{ secrets.AWS_REGION }}
 
-      # Step 4: Push Base Docker Image to ECR
-      - name: Push Base Docker Image
-        run: |
-          chmod +x ./scripts/push_image_to_ecr.sh
-          ./scripts/push_image_to_ecr.sh
+#      # Step 6: Push Base Docker Image to ECR
+#      - name: Push Base Docker Image
+#        run: |
+#          chmod +x ./scripts/push_image_to_ecr.sh
+#          ./scripts/push_image_to_ecr.sh
+#
+#      # Step 7: Push Backend Docker Image to ECR
+#      - name: Push Backend Docker Image
+#        run: |
+#          chmod +x ./scripts/push-backend-image.sh
+#          ./scripts/push-backend-image.sh
 
-      # Step 6: Push Backend Docker Image to ECR
-      - name: Push Backend Docker Image
-        run: |
-          chmod +x ./scripts/push-backend-image.sh
-          ./scripts/push-backend-image.sh
-
-      # Step 7: Upload Docker Installation Script to EC2
+      # Step 8: Upload Docker Installation Script to EC2
       - name: Upload Docker Installation Script
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}  # Provide key content directly
+          key_path: qms-backend-dev-Key.pem
           port: 22
           source: ./scripts/install_docker_ec2.sh
           target: ~/install_docker_ec2.sh
 
-      # Step 8: Deploy to EC2
+      # Step 9: Deploy to EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}  # Provide key content directly
+          key_path: qms-backend-dev-Key.pem
           port: 22
           script: |
             # Make the install_docker_ec2.sh script executable
