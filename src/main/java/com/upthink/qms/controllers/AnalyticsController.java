@@ -140,19 +140,21 @@ public class AnalyticsController {
                     startDay = 7;
             }
             String[] formattedDates = getStartEndDate(startDay, clientTimeZone);
-            System.out.printf("Start day %s , End Day %s", formattedDates[0], formattedDates[1]);
+            System.out.printf("Start day %s , End Day %s\n", formattedDates[0], formattedDates[1]);
             List<QmAnalytics> qmAnalyticsList = new ArrayList<>();
             List<QmAnalytics> finalAnalyticsList = new ArrayList<>();
             if(request.getClientId() == 0) {
                 finalAnalyticsList = getQmAnalyticsList(formattedDates[0], formattedDates[1], yesterday);
-
+                System.out.println(finalAnalyticsList);
                 // To be filled tomorrow!!!!!
             } else {
+                System.out.println("Before in else block");
                 qmAnalyticsList = essayDetailsService.getUserActionCountsByClientId(
                         formattedDates[0],
                         formattedDates[1],
                         request.getClientId(),
                         yesterday);
+                System.out.println("QM Analytics else part " + qmAnalyticsList);
                 boolean finalYesterday1 = yesterday;
                 finalAnalyticsList =
                         qmAnalyticsList.stream()
@@ -190,6 +192,8 @@ public class AnalyticsController {
                                         })
                                 .collect(Collectors.toList());
             }
+
+            System.out.printf("now list %s", finalAnalyticsList);
             qmAnalyticsDTOS =
                     finalAnalyticsList.stream()
                             .map(
@@ -214,6 +218,7 @@ public class AnalyticsController {
 
     public List<PersonAnalyticsResponse.PersonAnalyticsDTO> getAllPersonAnalytics() {
         List<PersonAnalytics> qmAnalyticsList = personAnalyticsService.loadAllPersonAnalytics();
+        System.out.println(qmAnalyticsList);
         return qmAnalyticsList.stream()
                 .map(
                         personAnalytics -> {
@@ -231,10 +236,12 @@ public class AnalyticsController {
 
 
     public List<QmAnalytics> getQmAnalyticsList(String startDate, String endDate, boolean yesterday) {
+        System.out.println("*******************************************************");
         System.out.println("startDate " + startDate);
         System.out.println("endDate " + endDate);
         List<QmAnalytics> qmAnalyticsListYesterday =
                 essayDetailsService.getGetUserActionCounts(startDate, endDate, yesterday);
+        System.out.println("Qm analytics list " + qmAnalyticsListYesterday);
         return qmAnalyticsListYesterday.stream()
                 .map(
                         elem -> {
@@ -410,6 +417,7 @@ public class AnalyticsController {
 
     public List<QmAnalytics> getQMAnalyticsList(
             String startDate, String endDate, boolean yesterday) {
+        System.out.println("Here in getQMAnalyticsList");
         System.out.println("startDate " + startDate);
         System.out.println("endDate " + endDate);
         List<QmAnalytics> qmAnalyticsListYesterday =
@@ -479,7 +487,6 @@ public class AnalyticsController {
         String formattedStart = startDate.withZoneSameInstant(ZoneId.of("UTC")).format(formatter);
         String formattedEnd = endDate.withZoneSameInstant(ZoneId.of("UTC")).format(formatter);
         String[] result = {formattedStart, formattedEnd};
-        System.out.println("client timezone  result  --- " + formattedStart + "---" + formattedEnd);
         return result;
     }
 

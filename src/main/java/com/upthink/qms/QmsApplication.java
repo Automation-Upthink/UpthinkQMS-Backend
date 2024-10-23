@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 
 @SpringBootApplication
 @EnableWebSecurity
-@ComponentScan(basePackages = {"com.upthink.qms"})
+//@ComponentScan(basePackages = {"com.upthink.qms"})
 public class QmsApplication {
 
 	public static void main(String[] args) {

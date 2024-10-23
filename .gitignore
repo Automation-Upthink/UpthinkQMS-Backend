@@ -20,7 +20,4 @@
 .idea/
 .vscode/
 
-# Exclude resources folder
-src/main/resources/*
-
-build/*
+src/main/resources/serviceCreds.json

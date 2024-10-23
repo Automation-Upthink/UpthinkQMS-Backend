@@ -1,0 +1,24 @@
+# Use Ubuntu 22.04 as the base image
+FROM ubuntu:22.04
+
+# Set noninteractive mode to suppress timezone and geographic prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+
+# Copy scripts
+# COPY ./scripts /scripts
+
+# Update package lists and install required packages in one RUN
+RUN apt-get update && \
+    apt-get install -y unzip openjdk-21-jdk apache2 git gnupg2 apt-transport-https awscli wget curl ca-certificates locales && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Configure locales (if necessary for your app)
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+# Keep container running
+ENTRYPOINT ["tail", "-f", "/dev/null"]
+

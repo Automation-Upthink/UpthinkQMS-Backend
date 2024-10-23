@@ -1,0 +1,84 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Adjust the branch name if necessary
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Decode SSH Key
+      - name: Decode SSH Key
+        if: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > private-key.pem
+        shell: bash
+
+      # Step 3: Set SSH Key Permissions
+      - name: Set SSH Key Permissions
+        if: ${{ secrets.EC2_SSH_KEY }}
+        run: chmod 600 private-key.pem
+
+      # Step 4: Set up AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Build Spring Boot Application
+        run: ./gradlew clean bootjar
+
+      # Step 5: Push Base Docker Image to ECR
+      - name: Push Base Docker Image
+        run: |
+          chmod +x ./scripts/push_image_to_ecr.sh
+          ./scripts/push_image_to_ecr.sh
+
+      # Step 6: Push Backend Docker Image to ECR
+      - name: Push Backend Docker Image
+        run: |
+          chmod +x ./scripts/push-backend-image.sh
+          ./scripts/push-backend-image.sh
+
+      # Step 7: Deploy to EC2
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.13
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: qms-backend-dev-Key.pem
+          port: 22  # Change if using a different SSH port
+          script: |
+            # Optional: Install AWS CLI if not already installed
+            if ! command -v aws &> /dev/null
+            then
+              sudo apt-get update
+              sudo apt-get install -y awscli
+            fi
+
+            # Log in to ECR
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY_BACKEND }}
+
+            # Pull the latest backend Docker image
+            docker pull ${{ secrets.ECR_REPOSITORY_BACKEND }}:latest
+
+            # Stop and remove existing container if it exists
+            if [ $(docker ps -q -f name=qms-app) ]; then
+              docker stop qms-app
+              docker rm qms-app
+            fi
+
+            # Run the new container
+            docker run -d --name qms-app-dev -p 8080:8080 \
+            -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
+            -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \ 
+            ${{ secrets.ECR_REPOSITORY_BACKEND }}:latest

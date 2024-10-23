@@ -21,7 +21,7 @@ public class PersonAnalytics extends GsonDTO {
     private int reuploadNum;
 
     @Column(name="avg_grade_time")
-    private Integer avgGradeTime;
+    private int avgGradeTime;
 
     @Column(name="person_id")
     private String personId;
@@ -41,7 +41,7 @@ public class PersonAnalytics extends GsonDTO {
             int checkInNum,
             int checkOutNum,
             int reuploadNum,
-            Integer avgGradeTime,
+            int avgGradeTime,
             String personId) {
         this.id = id;
         this.checkInNum = checkInNum;
@@ -58,7 +58,7 @@ public class PersonAnalytics extends GsonDTO {
             int checkInNum,
             int checkOutNum,
             int reuploadNum,
-            Integer avgGradeTime,
+            int avgGradeTime,
             String personId,
             String personName,
             String personEmail) {

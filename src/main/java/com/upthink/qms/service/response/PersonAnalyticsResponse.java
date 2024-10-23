@@ -12,7 +12,7 @@ public class PersonAnalyticsResponse extends GsonDTO {
         private final String personName;
         private final String personEmail;
         private int totalCheckOuts, totalCheckIns, totalReuploads;
-        private long avgGradeTime;
+        private int avgGradeTime;
 
         public PersonAnalyticsDTO(
                 String personId,
@@ -21,7 +21,7 @@ public class PersonAnalyticsResponse extends GsonDTO {
                 int totalCheckOuts,
                 int totalCheckIns,
                 int totalReuploads,
-                long avgGradeTime) {
+                int avgGradeTime) {
             this.personId = personId;
             this.personName = personName;
             this.totalCheckOuts = totalCheckOuts;
@@ -51,7 +51,7 @@ public class PersonAnalyticsResponse extends GsonDTO {
             return totalReuploads;
         }
 
-        public long getAvgGradeTime() {
+        public int getAvgGradeTime() {
             return avgGradeTime;
         }
 

@@ -68,7 +68,7 @@ public class EssayDetailsService {
     public List<QmAnalytics> getGetUserActionCounts(String startDate, String endDate, boolean yesterday){
         List<Map<String, Object>> results = yesterday ? essayDetailsRepository.getUserActionCountsByGroupYesterday(startDate, endDate) :
                 essayDetailsRepository.getUserActionCountsByGroup(startDate, endDate);
-
+        System.out.println("Service layer results " + results);
         return results.stream()
                 .map(this::mapToQmAnalyticsDTO)
                 .collect(Collectors.toList());
@@ -155,9 +155,9 @@ public class EssayDetailsService {
         String personId = (String) result.get("personId");
         String personName = (String) result.get("personName");
         String personEmail = (String) result.get("personEmail");
-        int checkedInCount = ((Number) result.get("checkInNum")).intValue();
-        int checkedOutCount = ((Number) result.get("checkOutNum")).intValue();
-        int availableCount = ((Number) result.get("reuploadNum")).intValue();
+        int checkedInCount = ((Number) result.get("checkedInCount")).intValue();
+        int checkedOutCount = ((Number) result.get("checkedOutCount")).intValue();
+        int availableCount = ((Number) result.get("availableCount")).intValue();
 
         return new QmAnalytics(personId, personName, personEmail, checkedInCount, checkedOutCount, availableCount, 0);
     }

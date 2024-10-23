@@ -24,10 +24,18 @@ public interface PersonAnalyticsRepository extends JpaRepository<PersonAnalytics
             "VALUES (:personId, 1, 0, 0, 0)", nativeQuery = true)
     int insertPersonAnalytics(@Param("personId") String personId);
 
-    @Query(value = "SELECT person_analytics.*, person.name AS person_name, person.email AS person_email " +
-            "FROM person_analytics " +
-            "JOIN person ON person_analytics.person_id = person.id", nativeQuery = true)
-    List<PersonAnalytics> loadPersonAnalytics();
+//    @Query(value = "SELECT person_analytics.*, person.name AS person_name, person.email AS person_email " +
+//            "FROM person_analytics " +
+//            "JOIN person ON person_analytics.person_id = person.id", nativeQuery = true)
+//    List<Object[]> loadPersonAnalytics();
+
+    @Query(value = "SELECT pa.id, pa.checked_in_num, pa.checked_out_num, " +
+            "pa.reupload_num, pa.avg_grade_time, pa.person_id, " +
+            "p.name AS person_name, p.email AS person_email " +
+            "FROM person_analytics pa " +
+            "JOIN person p ON pa.person_id = p.id", nativeQuery = true)
+    List<Object[]> loadPersonAnalytics();
+
 
     @Modifying
     @Transactional

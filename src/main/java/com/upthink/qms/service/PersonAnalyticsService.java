@@ -2,11 +2,13 @@ package com.upthink.qms.service;
 
 import com.upthink.qms.domain.PersonAnalytics;
 import com.upthink.qms.repository.PersonAnalyticsRepository;
+import com.upthink.qms.service.response.PersonAnalyticsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonAnalyticsService {
@@ -53,6 +55,28 @@ public class PersonAnalyticsService {
      * @return A list of PersonAnalytics entries with associated user data.
      */
     public List<PersonAnalytics> loadAllPersonAnalytics() {
-        return personAnalyticsRepository.loadPersonAnalytics();
+        List<Object[]> results = personAnalyticsRepository.loadPersonAnalytics();
+        return mapToPersonAnalytics(results);
     }
+
+
+    public List<PersonAnalytics> mapToPersonAnalytics(List<Object[]> results) {
+        return results.stream()
+                .map(result -> new PersonAnalytics(
+                        ((Number) result[0]).intValue(),  // id
+                        ((Number) result[1]).intValue(),  // checkedInNum
+                        ((Number) result[2]).intValue(),  // checkedOutNum
+                        ((Number) result[3]).intValue(),  // reuploadNum
+                        result[4] != null ? ((Number) result[4]).intValue() : null,  // avgGradeTime
+                        (String) result[5],  // personId
+                        (String) result[6],  // personName
+                        (String) result[7]   // personEmail
+                ))
+                .collect(Collectors.toList());
+    }
+
+
+
+
+
 }

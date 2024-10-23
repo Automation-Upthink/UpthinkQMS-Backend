@@ -86,9 +86,9 @@ public interface EssayDetailsRepository extends JpaRepository<EssayDetails, Inte
             "ed.person_id AS personId, " +
             "p.email AS personEmail, " +
             "p.name AS personName, " +
-            "SUM(CASE WHEN ed.user_action = 'available' THEN 1 ELSE 0 END) AS availableCount, " +
-            "SUM(CASE WHEN ed.user_action = 'checked_out' THEN 1 ELSE 0 END) AS checkedOutCount, " +
-            "SUM(CASE WHEN ed.user_action = 'checked_in' THEN 1 ELSE 0 END) AS checkedInCount " +
+            "COALESCE(SUM(CASE WHEN ed.user_action = 'available' THEN 1 ELSE 0 END), 0) AS availableCount, " +
+            "COALESCE(SUM(CASE WHEN ed.user_action = 'checked_out' THEN 1 ELSE 0 END), 0) AS checkedOutCount, " +
+            "COALESCE(SUM(CASE WHEN ed.user_action = 'checked_in' THEN 1 ELSE 0 END), 0) AS checkedInCount " +
             "FROM essay_details ed " +
             "JOIN person p ON ed.person_id = p.id " +
             "WHERE ed.created_at >= TO_TIMESTAMP(:startDate, 'YYYY-MM-DD HH24:MI:SS.FF6') " +
