@@ -14,17 +14,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Decode SSH Key
-      - name: Decode SSH Key
-        env:
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-        run: |
-          if [ -n "$EC2_SSH_KEY" ]; then
-            echo "$EC2_SSH_KEY" | base64 --decode > qms-backend-dev-Key.pem
-          else
-            echo "EC2_SSH_KEY is not set. Skipping this step."
-          fi
-        shell: bash
+#      # Step 2: Decode SSH Key
+#      - name: Decode SSH Key
+#        env:
+#          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+#        run: |
+#          if [ -n "$EC2_SSH_KEY" ]; then
+#            echo "$EC2_SSH_KEY" | base64 --decode > qms-backend-dev-Key.pem
+#          else
+#            echo "EC2_SSH_KEY is not set. Skipping this step."
+#          fi
+#        shell: bash
 
       - name: Verify SSH Key File
         run: |
@@ -61,27 +61,36 @@ jobs:
           chmod +x ./scripts/push_image_to_ecr.sh
           ./scripts/push_image_to_ecr.sh
 
-      # Step 6: Push Backend Docker Image to ECR
+      # Step 9: Push Backend Docker Image to ECR
       - name: Push Backend Docker Image
         run: |
           chmod +x ./scripts/push-backend-image.sh
           ./scripts/push-backend-image.sh
 
-      # Step 9: Deploy to EC2
+      # Step 10: Upload Docker Installation Script to EC2
+      - name: Upload Docker Installation Script
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: qms-backend-dev-Key.pem
+          port: 22
+          source: ./install_docker_ec2.sh
+          target: ~/install_docker_ec2.sh
+
+      # Step 11: Deploy to EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu  # Ensure this matches your EC2 instance's user
-          key: qms-backend-dev-Key.pem
+          key_path: qms-backend-dev-Key.pem  # Use key_path instead of key
           port: 22  # Change if using a different SSH port
-          # Upload the install_docker_ec2.sh script to the EC2 instance
-          upload: ./install_docker_ec2.sh:~/install_docker_ec2.sh
           script: |
-            # Make install_docker_ec2.sh executable
+            # Make the install_docker_ec2.sh script executable
             chmod +x ~/install_docker_ec2.sh
 
-            # Run install_docker_ec2.sh to install Docker
+            # Run the Docker installation script
             sudo ~/install_docker_ec2.sh
 
             # Optional: Install AWS CLI if not already installed
@@ -91,7 +100,7 @@ jobs:
               sudo apt-get install -y awscli
             fi
 
-            # Log in to ECR
+            # Log in to Amazon ECR
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
             docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY_BACKEND }}
 
@@ -104,7 +113,7 @@ jobs:
               docker rm qms-app-dev
             fi
 
-            # Run the new container
+            # Run the new Docker container
             docker run -d --name qms-app-dev -p 8080:8080 \
             -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
