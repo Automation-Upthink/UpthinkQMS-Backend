@@ -61,9 +61,6 @@ jobs:
           chmod +x ./scripts/push_image_to_ecr.sh
           ./scripts/push_image_to_ecr.sh
 
-      - name: Build Spring Boot Application
-        run: ./gradlew clean bootjar
-
       # Step 6: Push Backend Docker Image to ECR
       - name: Push Backend Docker Image
         run: |
