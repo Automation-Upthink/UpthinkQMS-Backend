@@ -64,6 +64,7 @@ jobs:
 #          chmod +x ./scripts/push-backend-image.sh
 #          ./scripts/push-backend-image.sh
 
+
       # Step 8: Upload Docker Installation Script to EC2
       - name: Upload Docker Installation Script
         uses: appleboy/scp-action@v0.1.5
