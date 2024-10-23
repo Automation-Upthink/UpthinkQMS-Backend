@@ -79,7 +79,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: qms-backend-dev-Key.pem
+          key_path: qms-backend-dev-Key.pem
           port: 22
           source: ./scripts/install_docker_ec2.sh
           target: ~/install_docker_ec2.sh
