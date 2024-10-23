@@ -66,15 +66,15 @@ jobs:
 
 
       # Step 8: Upload Docker Installation Script to EC2
-#      - name: Upload Docker Installation Script
-#        uses: appleboy/scp-action@v0.1.5
-#        with:
-#          host: ${{ secrets.EC2_HOST }}
-#          username: ubuntu
-#          key: ${{ secrets.EC2_PEM_KEY }}
-#          port: 22
-#          source: ./scripts/install_docker_ec2.sh
-#          target: ~/install_docker_ec2.sh
+      - name: Upload Docker Installation Script
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_PEM_KEY }}
+          port: 22
+          source: ./scripts/install_docker_ec2.sh
+          target: ~/install_docker_ec2.sh
 
       # Step 9: Deploy to EC2
       - name: Deploy to EC2
@@ -86,10 +86,10 @@ jobs:
           port: 22
           script: |
             # Make the install_docker_ec2.sh script executable
-#            chmod +x ~/install_docker_ec2.sh
+            chmod +x ~/install_docker_ec2.sh
 
             # Run the Docker installation script
-#            sudo ~/install_docker_ec2.sh
+            sudo ~/install_docker_ec2.sh
 
             # Optional: Install AWS CLI if not already installed
             if ! command -v aws &> /dev/null
