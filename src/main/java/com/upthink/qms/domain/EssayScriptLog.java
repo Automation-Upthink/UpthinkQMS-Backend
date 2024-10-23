@@ -43,6 +43,7 @@ public class EssayScriptLog {
     @Column(name = "uuid")
     private String uuid;
 
+    public EssayScriptLog(){}
 
     public EssayScriptLog(int id, String personId, String actionPerformed, Timestamp createdAt) {
         this.id = id;

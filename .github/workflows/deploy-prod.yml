@@ -51,13 +51,13 @@ jobs:
           region: ${{ secrets.AWS_REGION }}
 
       # Step 5: Push Base Docker Image to ECR
-      - name: Push Base Docker Image
-        run: |
-          chmod +x ./scripts/push_image_to_ecr.sh
-          ./scripts/push_image_to_ecr.sh
+#      - name: Push Base Docker Image
+#        run: |
+#          chmod +x ./scripts/push_image_to_ecr.sh
+#          ./scripts/push_image_to_ecr.sh
 
-      - name: Build Spring Boot Application
-        run: ./gradlew clean bootjar
+#      - name: Build Spring Boot Application
+#        run: ./gradlew clean bootjar
 
       # Step 6: Push Backend Docker Image to ECR
       - name: Push Backend Docker Image

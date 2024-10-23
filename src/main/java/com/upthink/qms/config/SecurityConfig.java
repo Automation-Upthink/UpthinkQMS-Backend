@@ -63,10 +63,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "*",
-                "http://localhost:5173"
-//                "https://qms-upthink.vercel.app",
-//                "https://main.d2xuveirwkpf26.amplifyapp.com"
+//                "*",
+                "http://localhost:5173",
+                "https://qms.upthink.com",
+                "https://main.d2xuveirwkpf26.amplifyapp.com"
         )); // Allow frontend origin http://localhost:5173
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow methods
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); // Allow necessary headers
