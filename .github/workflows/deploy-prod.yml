@@ -61,17 +61,17 @@ jobs:
         with:
           region: ${{ secrets.AWS_REGION }}
 
-      # Step 7: Push Base Docker Image to ECR
-      - name: Push Base Docker Image
-        run: |
-          chmod +x ./scripts/push_image_to_ecr.sh
-          ./scripts/push_image_to_ecr.sh
-
-      # Step 9: Push Backend Docker Image to ECR
-      - name: Push Backend Docker Image
-        run: |
-          chmod +x ./scripts/push-backend-image.sh
-          ./scripts/push-backend-image.sh
+#      # Step 7: Push Base Docker Image to ECR
+#      - name: Push Base Docker Image
+#        run: |
+#          chmod +x ./scripts/push_image_to_ecr.sh
+#          ./scripts/push_image_to_ecr.sh
+#
+#      # Step 9: Push Backend Docker Image to ECR
+#      - name: Push Backend Docker Image
+#        run: |
+#          chmod +x ./scripts/push-backend-image.sh
+#          ./scripts/push-backend-image.sh
 
       # Step 10: Upload Docker Installation Script to EC2
       - name: Upload Docker Installation Script
@@ -81,7 +81,7 @@ jobs:
           username: ubuntu
           key: qms-backend-dev-Key.pem
           port: 22
-          source: ./install_docker_ec2.sh
+          source: ./scripts/install_docker_ec2.sh
           target: ~/install_docker_ec2.sh
 
       # Step 11: Deploy to EC2
