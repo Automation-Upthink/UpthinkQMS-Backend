@@ -26,6 +26,11 @@ jobs:
           fi
         shell: bash
 
+      - name: Verify SSH Key File
+        run: |
+          ls -l qms-backend-dev-Key.pem
+          cat qms-backend-dev-Key.pem
+
       # Step 3: Set SSH Key Permissions
       - name: Set SSH Key Permissions
         run: |
@@ -51,13 +56,13 @@ jobs:
           region: ${{ secrets.AWS_REGION }}
 
       # Step 5: Push Base Docker Image to ECR
-#      - name: Push Base Docker Image
-#        run: |
-#          chmod +x ./scripts/push_image_to_ecr.sh
-#          ./scripts/push_image_to_ecr.sh
+      - name: Push Base Docker Image
+        run: |
+          chmod +x ./scripts/push_image_to_ecr.sh
+          ./scripts/push_image_to_ecr.sh
 
-#      - name: Build Spring Boot Application
-#        run: ./gradlew clean bootjar
+      - name: Build Spring Boot Application
+        run: ./gradlew clean bootjar
 
       # Step 6: Push Backend Docker Image to ECR
       - name: Push Backend Docker Image
@@ -65,15 +70,23 @@ jobs:
           chmod +x ./scripts/push-backend-image.sh
           ./scripts/push-backend-image.sh
 
-      # Step 7: Deploy to EC2
+      # Step 9: Deploy to EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
+          username: ubuntu  # Ensure this matches your EC2 instance's user
           key: qms-backend-dev-Key.pem
           port: 22  # Change if using a different SSH port
+          # Upload the install_docker_ec2.sh script to the EC2 instance
+          upload: ./install_docker_ec2.sh:~/install_docker_ec2.sh
           script: |
+            # Make install_docker_ec2.sh executable
+            chmod +x ~/install_docker_ec2.sh
+
+            # Run install_docker_ec2.sh to install Docker
+            sudo ~/install_docker_ec2.sh
+
             # Optional: Install AWS CLI if not already installed
             if ! command -v aws &> /dev/null
             then
@@ -82,19 +95,20 @@ jobs:
             fi
 
             # Log in to ECR
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY_BACKEND }}
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+            docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY_BACKEND }}
 
             # Pull the latest backend Docker image
             docker pull ${{ secrets.ECR_REPOSITORY_BACKEND }}:latest
 
             # Stop and remove existing container if it exists
-            if [ $(docker ps -q -f name=qms-app) ]; then
-              docker stop qms-app
-              docker rm qms-app
+            if [ $(docker ps -q -f name=qms-app-dev) ]; then
+              docker stop qms-app-dev
+              docker rm qms-app-dev
             fi
 
             # Run the new container
             docker run -d --name qms-app-dev -p 8080:8080 \
-            -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
-            -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \ 
+            -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             ${{ secrets.ECR_REPOSITORY_BACKEND }}:latest
