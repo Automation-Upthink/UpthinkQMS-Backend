@@ -25,6 +25,10 @@ echo \
 # Update the package index again
 sudo apt-get update
 
+
+
+
+
 # Install Docker Engine
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
@@ -39,3 +43,11 @@ sudo systemctl enable docker
 
 # Verify Docker installation
 docker info
+
+
+
+# sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+
+# sudo systemctl start docker
+# sudo systemctl enable docker
+# sudo usermod -aG docker $USER
