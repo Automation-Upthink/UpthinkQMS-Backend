@@ -14,34 +14,40 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-#      # Step 2: Decode SSH Key
-#      - name: Decode SSH Key
-#        env:
-#          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-#        run: |
-#          if [ -n "$EC2_SSH_KEY" ]; then
-#            echo "$EC2_SSH_KEY" | base64 --decode > qms-backend-dev-Key.pem
-#          else
-#            echo "EC2_SSH_KEY is not set. Skipping this step."
-#          fi
-#        shell: bash
+      # Step 2: Decode SSH Key
+      - name: Decode SSH Key
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          if [ -n "$EC2_SSH_KEY" ]; then
+            echo "$EC2_SSH_KEY" | base64 --decode > qms-backend-dev-Key.pem
+          else
+            echo "EC2_SSH_KEY is not set. Skipping this step."
+          fi
+        shell: bash
 
+      # Step 3: Verify SSH Key File (Removed cat command)
       - name: Verify SSH Key File
         run: |
-          ls -l qms-backend-dev-Key.pem
-          cat qms-backend-dev-Key.pem
+          if [ -f "qms-backend-dev-Key.pem" ]; then
+            echo "SSH key file exists."
+            ls -l qms-backend-dev-Key.pem
+          else
+            echo "SSH key file not found."
+          fi
 
-      # Step 3: Set SSH Key Permissions
+      # Step 4: Set SSH Key Permissions
       - name: Set SSH Key Permissions
         run: |
           if [ -f "qms-backend-dev-Key.pem" ]; then
             chmod 600 qms-backend-dev-Key.pem
+            echo "SSH key permissions set to 600."
           else
             echo "SSH key file not found. Skipping permission setting."
           fi
         shell: bash
 
-      # Step 4: Set up AWS Credentials
+      # Step 5: Set up AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -49,13 +55,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # **New Step: Login to Amazon ECR using GitHub Action**
+      # Step 6: Login to Amazon ECR using GitHub Action
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
         with:
           region: ${{ secrets.AWS_REGION }}
 
-      # Step 5: Push Base Docker Image to ECR
+      # Step 7: Push Base Docker Image to ECR
       - name: Push Base Docker Image
         run: |
           chmod +x ./scripts/push_image_to_ecr.sh
@@ -84,7 +90,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu  # Ensure this matches your EC2 instance's user
-          key_path: qms-backend-dev-Key.pem  # Use key_path instead of key
+          key_path: qms-backend-dev-Key.pem  # Correct parameter
           port: 22  # Change if using a different SSH port
           script: |
             # Make the install_docker_ec2.sh script executable
