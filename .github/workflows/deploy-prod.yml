@@ -16,15 +16,25 @@ jobs:
 
       # Step 2: Decode SSH Key
       - name: Decode SSH Key
-        if: ${{ secrets.EC2_SSH_KEY }}
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > private-key.pem
+          if [ -n "$EC2_SSH_KEY" ]; then
+            echo "$EC2_SSH_KEY" | base64 --decode > qms-backend-dev-Key.pem
+          else
+            echo "EC2_SSH_KEY is not set. Skipping this step."
+          fi
         shell: bash
 
       # Step 3: Set SSH Key Permissions
       - name: Set SSH Key Permissions
-        if: ${{ secrets.EC2_SSH_KEY }}
-        run: chmod 600 private-key.pem
+        run: |
+          if [ -f "qms-backend-dev-Key.pem" ]; then
+            chmod 600 qms-backend-dev-Key.pem
+          else
+            echo "SSH key file not found. Skipping permission setting."
+          fi
+        shell: bash
 
       # Step 4: Set up AWS Credentials
       - name: Configure AWS Credentials
