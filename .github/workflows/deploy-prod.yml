@@ -85,10 +85,10 @@ jobs:
           key: ${{ secrets.EC2_PEM_KEY }}
           port: 22
           script: |
-#            # Make the install_docker_ec2.sh script executable
+            # Make the install_docker_ec2.sh script executable
 #            chmod +x ~/install_docker_ec2.sh
-#
-#            # Run the Docker installation script
+
+            # Run the Docker installation script
 #            sudo ~/install_docker_ec2.sh
 
             # Optional: Install AWS CLI if not already installed
