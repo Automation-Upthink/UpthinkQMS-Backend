@@ -44,6 +44,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # **New Step: Login to Amazon ECR using GitHub Action**
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: ${{ secrets.AWS_REGION }}
+
       # Step 5: Push Base Docker Image to ECR
       - name: Push Base Docker Image
         run: |
