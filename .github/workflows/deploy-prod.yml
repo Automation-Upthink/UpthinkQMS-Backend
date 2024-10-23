@@ -70,7 +70,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key_path: qms-backend-dev-Key.pem
+          key: ${{ secrets.EC2_PEM_KEY }}
           port: 22
           source: ./scripts/install_docker_ec2.sh
           target: ~/install_docker_ec2.sh
@@ -81,7 +81,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key_path: qms-backend-dev-Key.pem
+          key: ${{ secrets.EC2_PEM_KEY }}
           port: 22
           script: |
             # Make the install_docker_ec2.sh script executable
