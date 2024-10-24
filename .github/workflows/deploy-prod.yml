@@ -73,9 +73,6 @@ jobs:
           key: ${{ secrets.EC2_PEM_KEY }}
           port: 22
           script: |
-            # Optional: Install AWS CLI if not already installed
-            sudo apt-get update
-            sudo apt-get install -y awscli
             # Log in to Amazon ECR
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
             docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY_BACKEND }}
