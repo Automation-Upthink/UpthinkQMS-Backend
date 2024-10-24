@@ -77,7 +77,7 @@ jobs:
             # Log in to Amazon ECR
             aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 462203881643.dkr.ecr.ap-south-1.amazonaws.com
             # Pull the latest backend Docker image
-            docker pull 462203881643.dkr.ecr.ap-south-1.amazonaws.com:latest
+            docker pull 462203881643.dkr.ecr.ap-south-1.amazonaws.com/qms-springboot-backend-dev:latest
 
             # Stop and remove existing container if it exists
             if [ $(docker ps -q -f name=qms-app-dev) ]; then
@@ -89,7 +89,7 @@ jobs:
             docker run -d --name qms-app-dev -p 8080:8080 \
             -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            ${{ secrets.ECR_REPOSITORY_BACKEND }}:latest
+            462203881643.dkr.ecr.ap-south-1.amazonaws.com/qms-springboot-backend-dev:latest
 
 
 #            if ! command -v aws &> /dev/null
