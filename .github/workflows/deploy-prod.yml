@@ -74,9 +74,6 @@ jobs:
           port: 22
           script: |
             # Optional: Install AWS CLI if not already installed
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
             # Log in to Amazon ECR
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
             docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY_BACKEND }}
