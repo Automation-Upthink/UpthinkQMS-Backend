@@ -75,9 +75,7 @@ jobs:
           script: |
             # Optional: Install AWS CLI if not already installed
             # Log in to Amazon ECR
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
-            docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY_BACKEND }}
-
+            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 462203881643.dkr.ecr.ap-south-1.amazonaws.com
             # Pull the latest backend Docker image
             docker pull ${{ secrets.ECR_REPOSITORY_BACKEND }}:latest
 
