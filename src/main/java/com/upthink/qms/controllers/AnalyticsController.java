@@ -311,9 +311,10 @@ public class AnalyticsController {
 
     @PostMapping("/exportAllEssayAnalytics")
     @PreAuthorize("hasRole('QM_ADMIN")
-    public BaseResponse exportAllEssayAnalytics(AuthenticatedRequest request) {
+    public BaseResponse exportAllEssayAnalytics(DownloadAnalyticsRequest request) {
         try{
-            List<EssayDetails> essayDetailsList = essayDetailsService.getAllEssayDetails();
+            List<EssayDetails> essayDetailsList = essayDetailsService
+                    .getAllEssayDetailsByTime(request.getStartTime(), request.getEndTime());
             CsvUtils.essayAnalyticsToSheet(
                     gSheetId, essaySheetName, essayDetailsList);
             return new BaseResponse(true, null);
@@ -358,10 +359,10 @@ public class AnalyticsController {
             List<PersonAnalyticsResponse.PersonAnalyticsDTO> qmAnalyticsDTOS = new ArrayList<>();
             String startDate = request.getStartTime();
             String endDate = request.getEndTime();
-            System.out.printf("start Date %s End Date %s", startDate, endDate);
+            System.out.printf("start Date %s End Date %s\n", startDate, endDate);
             List<QmAnalytics> analyticsList =
                     essayDetailsService.getUserActionAnalytics(startDate, endDate);
-
+            System.out.println("Analyticvs list : " + analyticsList);
             finalAnalyticsList =
                     analyticsList.stream()
                             .map(
